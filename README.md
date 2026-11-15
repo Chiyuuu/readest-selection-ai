@@ -41,7 +41,7 @@
 - `abi`：默认 `aarch64`（骁龙 8 Gen 2 的 Tab S9 / 多数现代手机都是这个）
 - `publish_release`：默认开，构建完发到 Releases，直接下载 APK
 
-流水线会：拉取上游源码与子模块 → 装 JDK 17 / NDK 28.2.13676358 / Rust Android target → `pnpm tauri android init` → 应用本补丁 → 用临时自签名 keystore 构建并签名 → 上传 Artifact 与 Release。约 30–90 分钟。
+流水线会：拉取上游源码与子模块 → 装 JDK 17 / NDK 28.2.13676358 / Rust Android target → `pnpm install` → **`pnpm --filter @readest/readest-app setup-vendors`**（拷贝 pdf.js worker/wasm/字体/CSS，缺了会导致书籍无法打开）→ `pnpm tauri android init` → 应用本补丁 → 用临时自签名 keystore 构建并签名 → 上传 Artifact 与 Release。约 20–40 分钟。
 
 APK 是**自签名**的，安装时 Android 会提示允许"安装未知应用"。后续升级请复用同一 keystore，否则需要先卸载。
 
@@ -65,8 +65,9 @@ APK 是**自签名**的，安装时 Android 会提示允许"安装未知应用"�
 
 ```bash
 git clone --recurse-submodules https://github.com/readest/readest.git
-node patch/apply.mjs ./readest
 cd readest && pnpm install --frozen-lockfile
+pnpm --filter @readest/readest-app setup-vendors   # 必需：pdf.js 资源
+node /path/to/patch/apply.mjs ./readest
 cd apps/readest-app && pnpm tauri android build -t aarch64
 ```
 
