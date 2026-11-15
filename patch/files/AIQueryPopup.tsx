@@ -131,9 +131,6 @@ const AIQueryPopup: React.FC<AIQueryPopupProps> = ({
         await streamSelectionAI({
           config,
           task,
-          selection: text,
-          context,
-          bookTitle,
           history: buildHistory(nextTurns, task),
           signal: controller.signal,
           onReset: () => setTurns((prev) => resetLast(prev)),
