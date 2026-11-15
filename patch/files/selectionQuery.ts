@@ -32,9 +32,7 @@ export interface SelectionAIMessage {
 export interface SelectionAIRequest {
   config: SelectionAIConfig;
   task: SelectionAITask;
-  selection: string;
-  context?: string;
-  bookTitle?: string;
+  /** Already assembled into the first user turn by the popup. */
   history: SelectionAIMessage[];
   signal?: AbortSignal;
   onDelta: (chunk: string) => void;
@@ -195,7 +193,7 @@ const parseSSEChunk = (payload: string): string => {
  * non-streaming mode so the feature still works instead of showing a blank.
  */
 export const streamSelectionAI = async (req: SelectionAIRequest): Promise<void> => {
-  const { config, task, selection, context, bookTitle, history, signal, onDelta, onReset } = req;
+  const { config, task, history, signal, onDelta, onReset } = req;
   const httpFetch = getAIFetch();
   const url = `${config.baseUrl.replace(/\/+$/, '')}/chat/completions`;
 
