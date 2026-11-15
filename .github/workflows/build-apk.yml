@@ -117,6 +117,22 @@ jobs:
         working-directory: readest
         run: git checkout .
 
+      # Required by upstream CI (nightly.yml / release.yml): copies pdfjs-dist's
+      # worker, wasm, cmaps, standard fonts and flattened CSS into
+      # apps/readest-app/public/vendor/pdfjs. Without it the reader cannot
+      # render books (missing worker/wasm at runtime). Run AFTER `git checkout .`
+      # so the restore can never wipe these generated, untracked assets.
+      - name: Stage pdf.js vendor assets
+        working-directory: readest
+        run: pnpm --filter @readest/readest-app setup-vendors
+
+      - name: Verify vendor assets exist
+        working-directory: readest
+        run: |
+          ls -lh apps/readest-app/public/vendor/pdfjs/ | head -20
+          test -f apps/readest-app/public/vendor/pdfjs/pdf.worker.min.mjs
+          echo "pdf.js vendor assets staged."
+
       - name: Apply the Selection-AI patch
         run: node .patch-repo/patch/apply.mjs readest
 
